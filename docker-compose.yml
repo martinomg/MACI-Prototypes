@@ -1,0 +1,102 @@
+version: "3.8"
+name: directus-prototyper
+services:
+  database:
+    container_name: ls-database-directus-prototyper
+    image: postgis/postgis:13-master
+    restart: always
+    # Required when running on platform other than amd64, like Apple M1/M2:
+    platform: linux/amd64
+    volumes:
+      - ./data/database:/var/lib/postgresql/data
+    networks:
+      - directus
+    ports:
+      - 17771:5432
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+
+  # cache:
+  #   image: redis:6
+  #   networks:
+  #     - directus
+
+  directus:
+    container_name: ls-directus-directus-prototyper
+    image: directus/directus:latest
+    restart: always
+    ports:
+      - 17777:8055
+    volumes:
+      - ./uploads:/directus/uploads
+      # If you want to load extensions from the host
+      - ./extensions:/directus/extensions
+      - ./directus-config:/directus/directus-config
+    networks:
+      - directus
+    depends_on:
+      # - cache
+      - database
+    environment:
+      CHOKIDAR_USEPOLLING: true
+      KEY: "${DIRECTUS_KEY}"
+      SECRET: "${DIRECTUS_SECRET}"
+
+      DB_CLIENT: "pg"
+      DB_HOST: "database"
+      DB_PORT: "5432"
+      DB_DATABASE: "${POSTGRES_DB}"
+      DB_USER: "${POSTGRES_USER}"
+      DB_PASSWORD: "${POSTGRES_PASSWORD}"
+
+      CORS_ENABLED: true
+      CORS_ORIGIN: true
+      CORS_METHODS: 'GET,POST,PATCH,DELETE'
+      CORS_CREDENTIALS: true
+
+
+      CACHE_ENABLED: false
+      # CACHE_STORE: "redis"
+      # CACHE_REDIS: "redis://cache:6379"
+
+      ADMIN_EMAIL: "${ADMIN_EMAIL}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+
+      TELEMETRY: false
+      EXTENSIONS_AUTO_RELOAD: true
+
+      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: "* data: blob:"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__IMG_SRC: "* data: blob:"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__SCRIPT_SRC: "'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net"
+      
+      EMAIL_FROM: "${EMAIL_FROM}"
+      EMAIL_TRANSPORT: "smtp"
+      EMAIL_SMTP_HOST: "${EMAIL_SMTP_HOST}"
+      EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT}
+      EMAIL_SMTP_USER: "${EMAIL_SMTP_USER}"
+      EMAIL_SMTP_PASSWORD: "${EMAIL_SMTP_PASSWORD}"
+      EMAIL_SMTP_SECURE: ${EMAIL_SMTP_SECURE}
+
+      INTEGRATIONS_PROXY_LOCAL_DEV: true
+      GOOGLEGENAI_API_KEY: "${GOOGLEGENAI_API_KEY}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+      AWS_REGION: "${AWS_REGION}"
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: always
+    container_name: ls-qdrant-prototyper
+    ports:
+      - 17773:6333 # tcp
+      - 17774:6334 # grpc
+    expose:
+      - 6333
+      - 6334
+      - 6335
+    volumes:
+      - ./qdrant_data:/qdrant/storage
+networks:
+  directus:

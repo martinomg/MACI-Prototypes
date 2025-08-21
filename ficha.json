@@ -1,0 +1,17 @@
+{
+    "data": [
+        {
+            "nombre": "Juan",
+            "edad": 30
+        },
+        {
+            "nombre": "María",
+            "edad": 25
+        }
+    ],
+    "meta": {
+        "total_count": 3000,
+        "filter_count": 2,
+        "page": 1
+    }
+}

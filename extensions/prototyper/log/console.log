@@ -1,0 +1,35 @@
+
+> prototyper@1.0.0 dev /Users/martinomg/Documents/DEV/300robots/directus-prototyper/extensions/prototyper
+> directus-extension build -w --no-minify
+
+
+[1;1H[0J- Building Directus extension...
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/core.mjs (1:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/core.mjs (1:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/core.mjs (7:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/core.mjs (7:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/responses/ResponseStream.mjs (1:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/responses/ResponseStream.mjs (1:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/responses/ResponseStream.mjs (7:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/responses/ResponseStream.mjs (7:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/AssistantStream.mjs (1:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/AssistantStream.mjs (1:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/AssistantStream.mjs (6:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/AssistantStream.mjs (6:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/internal/decoders/line.mjs (1:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/internal/decoders/line.mjs (1:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/internal/decoders/line.mjs (7:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/internal/decoders/line.mjs (7:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/EventStream.mjs (1:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/EventStream.mjs (1:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/EventStream.mjs (7:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/EventStream.mjs (7:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/ChatCompletionStream.mjs (1:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/ChatCompletionStream.mjs (1:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/ChatCompletionStream.mjs (7:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/ChatCompletionStream.mjs (7:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/AbstractChatCompletionRunner.mjs (1:30): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+node_modules/.pnpm/openai@4.104.0_zod@3.25.76/node_modules/openai/lib/AbstractChatCompletionRunner.mjs (1:38): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten
+✔ Done
+Watching files for changes...
+ ELIFECYCLE  Command failed.

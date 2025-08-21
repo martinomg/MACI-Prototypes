@@ -1,0 +1,80 @@
+{
+	"name": "prototyper",
+	"description": "Please enter a description for your extension",
+	"icon": "extension",
+	"version": "1.0.0",
+	"keywords": [
+		"directus",
+		"directus-extension",
+		"directus-extension-bundle"
+	],
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"directus:extension": {
+		"type": "bundle",
+		"path": {
+			"app": "dist/app.js",
+			"api": "dist/api.js"
+		},
+		"entries": [
+			{
+				"type": "endpoint",
+				"name": "scripts",
+				"source": "src/endpoints/scripts.endpoints.ts"
+			},
+			{
+				"type": "endpoint",
+				"name": "generations",
+				"source": "src/endpoints/generations.endpoints.ts"
+			},
+			{
+				"type": "hook",
+				"name": "scripts-hook",
+				"source": "src/hooks/scripts.hooks.ts"
+			},
+			{
+				"type": "module",
+				"name": "prototyper-module",
+				"source": "src/views/index.ts"
+			}
+		],
+		"host": "^10.10.0"
+	},
+	"scripts": {
+		"build": "directus-extension build",
+		"dev": "directus-extension build -w --no-minify",
+		"link": "directus-extension link",
+		"validate": "directus-extension validate",
+		"add": "directus-extension add"
+	},
+	"devDependencies": {
+		"@directus/extensions-sdk": "14.0.0",
+		"@types/lodash": "^4.17.20",
+		"@types/node": "^24.0.13",
+		"autoprefixer": "^10.4.20",
+		"postcss": "^8.4.49",
+		"sass": "^1.79.4",
+		"tailwindcss": "^3.4.14",
+		"typescript": "^5.8.3",
+		"vue": "^3.5.17"
+	},
+	"dependencies": {
+		"@aws-sdk/client-bedrock-runtime": "^3.816.0",
+		"@aws-sdk/client-polly": "^3.816.0",
+		"@aws-sdk/client-s3": "^3.816.0",
+		"@aws-sdk/client-sts": "^3.817.0",
+		"@google/generative-ai": "^0.24.1",
+		"@iconify/vue": "^5.0.0",
+		"@langchain/aws": "^0.1.10",
+		"@langchain/community": "^0.3.44",
+		"@langchain/core": "^0.3.57",
+		"@langchain/google-genai": "^0.2.9",
+		"@langchain/openai": "^0.5.11",
+		"axios": "^1.11.0",
+		"lodash": "^4.17.21",
+		"mitt": "^3.0.1",
+		"vuedraggable": "^4.1.0"
+	}
+}

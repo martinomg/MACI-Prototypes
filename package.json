@@ -1,0 +1,13 @@
+{
+  "name": "script-composer",
+  "version": "1.0.0",
+  "description": "Directus-based script composer project",
+  "scripts": {
+    "sync:pull": "npx directus-sync pull -c ./directus-sync-configurations/local.backup.directus-sync.config.cjs",
+    "sync:push": "npx directus-sync push -c ./directus-sync-configurations/local.bootstrap.directus-sync.config.cjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "packageManager": "pnpm@8.6.12"
+}
