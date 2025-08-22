@@ -1,0 +1,53 @@
+{
+  "message": "dale estructura al siguiente resultado: A continuación, se presentan dos oportunidades de empleo concretas que se ajustan al perfil descrito, destacando la experiencia en áreas administrativas, de servicio y apoyo operativo, así como la responsabilidad, el trabajo en equipo y la capacidad de adaptación:\n\n### 1. Empleada Administrativa con Experiencia\n\n**Descripción de la Oportunidad:** Esta posición busca una empleada administrativa con experiencia comprobable en tareas administrativas generales, registraciones y conciliaciones. El perfil del usuario, con más de 40 años de trabajo constante en áreas administrativas y su facilidad para organizar tareas, encaja perfectamente con las responsabilidades del puesto. Se valora el manejo de Paquete Office y se ofrece un horario de lunes a viernes.\n\n*   **Perfil Requerido:** Experiencia mínima de 2 años en puestos similares. Conocimientos en Administración / Informática Paquete Office.\n*   **Horario:** Lunes a viernes de 8 a 17 hs.\n*   **Ubicación:** No especificada en el snippet, pero la fuente (AMIA Empleos) sugiere Argentina, posiblemente CABA.\n*   **Link:** [AMIA Empleos - Búsqueda de Empleada Administrativa](https://www.amia.org.ar/empleos/) (Deberá buscar la oferta específica en el portal, ya que el enlace proporcionado lleva a la página general de empleos de AMIA).\n\n### 2. Atención a Clientes para Adulto Mayor / Jubilados (CDMX)\n\n**Descripción de la Oportunidad:** Esta oferta está específicamente dirigida a adultos mayores o jubilados, lo que la hace ideal para el perfil. Implica brindar atención al cliente de manera amable y efectiva, lo cual se alinea con la capacidad del usuario para mantener un trato cordial y respetuoso con clientes. La experiencia en servicio y la adaptabilidad serán valoradas.\n\n*   **Perfil Requerido:** Orientado a adultos mayores/jubilados. Habilidad para brindar atención al cliente amable y efectiva.\n*   **Horario:** No especificado en el snippet, pero algunas ofertas en Indeed para adultos mayores mencionan \"Medio Tiempo Vespertino\".\n*   **Ubicación:** Ciudad de México (CDMX).\n*   **Link:** [Indeed - Empleos de Para adultos mayores en Ciudad de México](https://mx.indeed.com/empleos-de-Para-adultos-mayores-en-Ciudad-de-M%C3%A9xico) (Deberá buscar la oferta específica dentro de los resultados de búsqueda, ya que el enlace lleva a la página general de empleos para adultos mayores en CDMX).",
+  "model": "gemini-2.5-flash",
+  "maxTokens": 10000,
+  "stream": false,
+  "json_mode": true,
+  "response_schema": {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OportunidadesLaboralesTerceraEdad",
+  "type": "object",
+  "properties": {
+    "oportunidades": {
+      "type": "array",
+      "description": "Lista de oportunidades laborales relevantes para adultos mayores o jubilados.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "titulo": {
+            "type": "string",
+            "description": "Nombre o título del puesto de trabajo."
+          },
+          "descripcion": {
+            "type": "string",
+            "description": "Descripción detallada de la oportunidad laboral."
+          },
+          "perfil_requerido": {
+            "type": "string",
+            "description": "Requisitos o perfil buscado para la posición."
+          },
+          "horario": {
+            "type": "string",
+            "description": "Horario de trabajo especificado para la oferta."
+          },
+          "ubicacion": {
+            "type": "string",
+            "description": "Ciudad o región donde se ofrece el empleo."
+          },
+          "link": {
+            "type": "string",
+            "format": "uri",
+            "description": "Enlace a la fuente o página donde se encuentra la oferta de empleo."
+          }
+        },
+        "required": ["titulo", "descripcion", "perfil_requerido", "horario", "ubicacion", "link"],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["oportunidades"],
+  "additionalProperties": false
+}
+}

@@ -1,0 +1,11 @@
+{
+   "message": "busca 2 oportunidades de empleo concretas (con un link y un ficha) para la tercera edad que calcen bien con el siguiente perfil que escribió un usuario: Mis habilidades son el resultado de más de 40 años de trabajo constante en áreas administrativas, de servicio y apoyo operativo. Me destaco por mi responsabilidad, puntualidad y capacidad para trabajar en equipo, así como por mantener un trato cordial y respetuoso con clientes y colegas. Tengo facilidad para organizar tareas, resolver imprevistos y adaptarme a distintos entornos laborales. Busco un puesto donde pueda aportar mi experiencia, compromiso y ganas de seguir aprendiendo.",
+   "model": "gemini-2.5-flash",
+   "maxTokens": 4000,
+   "stream": false,
+   "tools": [
+        {
+            "google_search": {}
+        }
+   ]
+}
