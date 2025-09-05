@@ -428,7 +428,7 @@ export default (router: any, context: any) => {
 
     router.post('/ask/oportunidades', async (req:any, res:any) => {
         try {
-            const { pregunta, limit = 5 } = req.body;
+            const { pregunta, limit = 5, link_pattern } = req.body;
 
             if (!pregunta) {
                 return res.status(400).json({ error: 'Question "pregunta" is required.' });
@@ -471,12 +471,25 @@ export default (router: any, context: any) => {
 
             // Step 3: Use the vector to search for relevant opportunities in Qdrant
             const qdrantCollection = 'oportunidades';
-            const searchResults = await vectordb.searchKnn({
+            const searchOptions: any = {
                 collection_name: qdrantCollection,
                 vector: searchVector,
                 limit: limit,
                 with_payload: true,
-            });
+            };
+
+            if (link_pattern) {
+                searchOptions.filter = {
+                    must: [{
+                        key: 'link',
+                        match: {
+                            text: link_pattern
+                        }
+                    }]
+                };
+            }
+
+            const searchResults = await vectordb.searchKnn(searchOptions);
 
             if (!searchResults || searchResults.length === 0) {
                 return res.json({ 
