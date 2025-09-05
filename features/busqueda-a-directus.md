@@ -4,7 +4,6 @@ Los datos van a dos colecciones de directus:
 1. perfiles: donde se guardan las búsquedas y los resultados generativos sin procesar
 2. oportunidades: donde se guardan los datos de forma estructurada
 
-
 ## Cómo guardarlos
 
 La primera solicitud de búsqueda en google debe guardar:
@@ -20,3 +19,4 @@ oportunidades > horario
 oportunidades > link
 oportunidades > perfil requerido
 oportunidades > ubicacion
+

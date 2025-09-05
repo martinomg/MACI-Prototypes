@@ -284,3 +284,22 @@ This script:
 6. Returns the build exit code
 
 Use this command to quickly build extensions with the correct environment setup.
+
+
+## How to use itemsservice
+
+```js
+export default (router, context) => {
+    const { services, getSchema } = context;
+    const { ItemsService } = services;
+
+    router.get('/', async (req, res) => {
+        const itemsService = new ItemsService('collection_name', {
+            schema: await getSchema(),
+            accountability: req.accountability
+        });
+
+        // Your route handler logic
+    });
+};
+```

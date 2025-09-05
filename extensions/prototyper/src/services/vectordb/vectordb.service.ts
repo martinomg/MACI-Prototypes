@@ -2,6 +2,11 @@
 // https://qdrant.tech/documentation/concepts/
 import axios, { AxiosError } from 'axios';
 
+// Declare process as global (available in Node.js runtime)
+declare const process: {
+  env: { [key: string]: string | undefined };
+};
+
 // TypeScript interfaces for type safety
 interface CollectionParams {
     collection_name?: string | null | undefined;
@@ -79,17 +84,20 @@ interface GroupsSearchParams {
     } | null;
 }
 
-// Use environment variables for host and port
-const getQdrantUrl = () => {
-  const host = process.env.QDRANT_HOST || 'http://host.docker.internal';
+// Use environment variables for host and port, default to Docker network address
+const getQdrantUrl = (customUrl?: string) => {
+  if (customUrl) {
+    return customUrl;
+  }
+  const host = process.env.QDRANT_HOST || 'http://qdrant';
   const port = process.env.QDRANT_PORT || '6333';
   return `${host}:${port}`;
 };
 
 
-async function getStatus(){
+async function getStatus(qdrantUrl?: string){
     try {
-        const {data:status} = await axios.get(`${getQdrantUrl()}`)
+        const {data:status} = await axios.get(`${getQdrantUrl(qdrantUrl)}`)
         return status
     } catch (error) {
         console.error('@status', error)
@@ -105,7 +113,7 @@ async function getStatus(){
  * each of which can have their own dimensionality and metric requirements.
  */
 
-async function listCollections(){
+async function listCollections(qdrantUrl?: string){
     try {
         const {
             data:{
@@ -113,7 +121,7 @@ async function listCollections(){
                     collections
                 }
             }
-        } = await axios.get(`${getQdrantUrl()}/collections?wait=true`)
+        } = await axios.get(`${getQdrantUrl(qdrantUrl)}/collections?wait=true`)
         return collections
     } catch (error) {
         console.error('@list_collections', error)
@@ -121,7 +129,7 @@ async function listCollections(){
     }
 }
 
-async function listAliases(){
+async function listAliases(qdrantUrl?: string){
     try {
         const {
             data: {
@@ -129,7 +137,7 @@ async function listAliases(){
                     aliases
                 }
             }
-        } = await axios.get(`${getQdrantUrl()}/aliases`)
+        } = await axios.get(`${getQdrantUrl(qdrantUrl)}/aliases`)
         return aliases
     } catch (error) {
         console.error('@list_aliases', error)
@@ -140,7 +148,8 @@ async function listAliases(){
 
 async function collectionExists({
     collection_name = null,
-}: { collection_name?: string | null }){
+    qdrantUrl
+}: { collection_name?: string | null, qdrantUrl?: string }){
     try {
         if (!collection_name) {
             throw new Error('Collection collection_name is required');
@@ -150,7 +159,7 @@ async function collectionExists({
             data: {
                 result
             }
-        } = await axios.get(`${getQdrantUrl()}/collections/${collection_name}/exists`);
+        } = await axios.get(`${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/exists`);
         
         return result;
     } catch (error: any) {
@@ -231,6 +240,7 @@ async function createCollection({
     params = null,
     on_disk = true,
     on_disk_payload = true,
+    qdrantUrl
 }: {
     distance?: 'Cosine' | 'Euclid' | 'Dot' | 'Manhattan',
     collection_name?: string | null,
@@ -241,7 +251,8 @@ async function createCollection({
     quantization_config?: any,
     params?: any,
     on_disk?: boolean,
-    on_disk_payload?: boolean
+    on_disk_payload?: boolean,
+    qdrantUrl?: string
 }){
     try {
         if (!collection_name) {
@@ -249,7 +260,7 @@ async function createCollection({
         }
 
         // Check if collection already exists
-        const {exists} = await collectionExists({ collection_name });
+        const {exists} = await collectionExists({ collection_name, qdrantUrl });
         if (exists === true) {
             console.log(`Collection ${collection_name} already exists`);
             return { status: 'exists', message: `Collection ${collection_name} already exists` };
@@ -287,7 +298,7 @@ async function createCollection({
         }
 
         const response = await axios.put(
-            `${getQdrantUrl()}/collections/${collection_name}`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}`,
             payload
         );
 
@@ -299,14 +310,15 @@ async function createCollection({
 }
 
 async function deleteCollection({
-    collection_name = null
-}: { collection_name?: string | null }){
+    collection_name = null,
+    qdrantUrl
+}: { collection_name?: string | null, qdrantUrl?: string }){
     try {
         if (!collection_name) {
             throw new Error('Collection collection_name is required');
         }
 
-        const response = await axios.delete(`${getQdrantUrl()}/collections/${collection_name}`);
+        const response = await axios.delete(`${getQdrantUrl(qdrantUrl)}/collections/${collection_name}`);
         
         return response.data;
     } catch (error) {
@@ -374,8 +386,9 @@ async function deleteCollection({
  */
 async function createCollectionMultivector({
     collection_name = null,
-    vectors = null
-}: { collection_name?: string | null, vectors?: any }) {
+    vectors = null,
+    qdrantUrl
+}: { collection_name?: string | null, vectors?: any, qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection name is required');
@@ -386,7 +399,7 @@ async function createCollectionMultivector({
         }
 
         // Check if collection already exists
-        const { exists } = await collectionExists({ collection_name });
+        const { exists } = await collectionExists({ collection_name, qdrantUrl });
         if (exists === true) {
             console.log(`Collection ${collection_name} already exists`);
             return { status: 'exists', message: `Collection ${collection_name} already exists` };
@@ -401,7 +414,7 @@ async function createCollectionMultivector({
         }
 
         const response = await axios.put(
-            `${getQdrantUrl()}/collections/${collection_name}`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}`,
             {
                 vectors
             }
@@ -421,7 +434,8 @@ async function updateCollection({
     quantization_config = null,
     vectors_config = null,
     params = null,
-}: { collection_name?: string | null, optimizers_config?: any, hnsw_config?: any, quantization_config?: any, vectors_config?: any, params?: any }){
+    qdrantUrl
+}: { collection_name?: string | null, optimizers_config?: any, hnsw_config?: any, quantization_config?: any, vectors_config?: any, params?: any, qdrantUrl?: string }){
     try {
         if (!collection_name) {
             throw new Error('Collection collection_name is required');
@@ -445,7 +459,7 @@ async function updateCollection({
         // Only send request if there are configurations to update
         if (Object.keys(payload).length > 0) {
             const response = await axios.patch(
-                `${getQdrantUrl()}/collections/${collection_name}`,
+                `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}`,
                 payload
             );
             return response.data;
@@ -464,14 +478,15 @@ async function updateCollection({
 
 
 async function getCollectionInfo({
-    collection_name = null
-}: { collection_name?: string | null }){
+    collection_name = null,
+    qdrantUrl
+}: { collection_name?: string | null, qdrantUrl?: string }){
     try {
         if (!collection_name) {
             throw new Error('Collection collection_name is required');
         }
 
-        const response = await axios.get(`${getQdrantUrl()}/collections/${collection_name}`);
+        const response = await axios.get(`${getQdrantUrl(qdrantUrl)}/collections/${collection_name}`);
         
         return response.data.result;
     } catch (error) {
@@ -488,7 +503,8 @@ async function rebuildCollection({
     optimizers_config = null,
     hnsw_config = null,
     quantization_config = null,
-    params = null
+    params = null,
+    qdrantUrl
 }: {
     distance?: 'Cosine' | 'Euclid' | 'Dot' | 'Manhattan',
     collection_name?: string | null,
@@ -497,7 +513,8 @@ async function rebuildCollection({
     optimizers_config?: any,
     hnsw_config?: any,
     quantization_config?: any,
-    params?: any
+    params?: any,
+    qdrantUrl?: string
 }){
     try {
         if (!collection_name) {
@@ -505,11 +522,11 @@ async function rebuildCollection({
         }
 
         // Check if collection exists before trying to delete
-        const exists = await collectionExists({ collection_name });
+        const exists = await collectionExists({ collection_name, qdrantUrl });
         
         if (exists) {
             // Delete the existing collection
-            await deleteCollection({ collection_name });
+            await deleteCollection({ collection_name, qdrantUrl });
             
             // Optional: Wait a short time to ensure deletion is complete
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -524,7 +541,8 @@ async function rebuildCollection({
             optimizers_config,
             hnsw_config,
             quantization_config,
-            params
+            params,
+            qdrantUrl
         });
 
         return result;
@@ -547,15 +565,16 @@ async function rebuildCollection({
  */
 async function listPoints({
     collection_name = null,
-    ids = []
-}: { collection_name?: string | null, ids?: any[] }){
+    ids = [],
+    qdrantUrl
+}: { collection_name?: string | null, ids?: any[], qdrantUrl?: string }){
     try {
         if (!collection_name) {
             throw new Error('Collection collection_name is required');
         }
         const payload = ids.length ? { ids } : {};
         const { data } = await axios.post(
-            `${getQdrantUrl()}/collections/${collection_name}/points`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points`,
             payload
         );
         return data;
@@ -566,42 +585,64 @@ async function listPoints({
 }
 
 async function scrollPoints({
-    name=null,
-    limit=1,
-    with_payload=true,
-    with_vector=false,
-    order_by=null
-}){
-    // // POST /collections/{collection_name}/points/scroll
-    // {
-    //     "filter": {
-    //         "must": [
-    //             {
-    //                 "key": "color",
-    //                 "match": {
-    //                     "value": "red"
-    //                 }
-    //             }
-    //         ]
-    //     },
-    //     "limit": 1,
-    //     "order_by": "timestamp",
-    //     "with_payload": true,
-    //     "with_vector": false
-    // }
+    collection_name = null,
+    limit = 100,
+    with_payload = true,
+    with_vector = false,
+    filter = null,
+    order_by = null,
+    offset = null,
+    qdrantUrl
+}: {
+    collection_name?: string | null,
+    limit?: number,
+    with_payload?: boolean,
+    with_vector?: boolean,
+    filter?: any,
+    order_by?: any,
+    offset?: any,
+    qdrantUrl?: string
+}) {
+    try {
+        if (!collection_name) {
+            throw new Error('Collection collection_name is required');
+        }
 
-    // when order_by pagination is disabled
-    // "order_by": {
-    //     "key": "timestamp",
-    //     "direction": "desc" // default is "asc"
-    //     "start_from": 123, // start from this value
-    // }
+        const payload: any = {
+            limit,
+            with_payload,
+            with_vector
+        };
+
+        if (filter && Object.keys(filter).length > 0) {
+            payload.filter = filter;
+        }
+
+        if (order_by) {
+            payload.order_by = order_by;
+        }
+
+        if (offset) {
+            payload.offset = offset;
+        }
+
+        const { data } = await axios.post(
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/scroll`,
+            payload
+        );
+
+        return data;
+    } catch (error) {
+        console.error('@scroll_points error:', error);
+        return { result: { points: [] } };
+    }
 }
 
 async function getPoint({
     collection_name = null,
-    id = null
-}: { collection_name?: string | null, id?: any }){
+    id = null,
+    qdrantUrl
+}: { collection_name?: string | null, id?: any, qdrantUrl?: string }){
     try {
         if (!collection_name) {
             throw new Error('Collection collection_name is required');
@@ -610,7 +651,7 @@ async function getPoint({
             throw new Error('Point id is required');
         }
         const { data } = await axios.get(
-            `${getQdrantUrl()}/collections/${collection_name}/points/${id}`
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/${id}`
         );
         return data;
     } catch (error) {
@@ -622,7 +663,8 @@ async function getPoint({
 async function countPoints({
     collection_name = null,
     filter = null,
-}: { collection_name?: string | null, filter?: any }) {
+    qdrantUrl
+}: { collection_name?: string | null, filter?: any, qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection collection_name is required');
@@ -633,7 +675,7 @@ async function countPoints({
                 result
             }
         } = await axios.post(
-            `${getQdrantUrl()}/collections/${collection_name}/points/count`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/count`,
             {
                 ...(filter ? {filter} : {}),
                 exact: true
@@ -681,8 +723,9 @@ async function countPoints({
 async function deletePoints({
     collection_name = null,
     ids = [],
-    filter = null
-}: { collection_name?: string | null, ids?: any[], filter?: any }) {
+    filter = null,
+    qdrantUrl
+}: { collection_name?: string | null, ids?: any[], filter?: any, qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection name is required');
@@ -697,7 +740,7 @@ async function deletePoints({
             : { filter };
 
         const response = await axios.post(
-            `${getQdrantUrl()}/collections/${collection_name}/points/delete`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/delete`,
             payload
         );
 
@@ -737,8 +780,9 @@ async function deletePoints({
  */
 async function upsertPointsRecords({
     collection_name = null,
-    points = []
-}: { collection_name?: string | null, points?: any[] }) {
+    points = [],
+    qdrantUrl
+}: { collection_name?: string | null, points?: any[], qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection collection_name is required');
@@ -753,7 +797,7 @@ async function upsertPointsRecords({
                 result
             }
         } = await axios.put(
-            `${getQdrantUrl()}/collections/${collection_name}/points`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points`,
             {
                 points: points
             },
@@ -801,8 +845,9 @@ async function upsertPointsBatch({
     collection_name = null,
     ids = [],
     payloads = [],
-    vectors = []
-}: { collection_name?: string | null, ids?: any[], payloads?: any[], vectors?: any[] }) {
+    vectors = [],
+    qdrantUrl
+}: { collection_name?: string | null, ids?: any[], payloads?: any[], vectors?: any[], qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection name is required');
@@ -821,7 +866,7 @@ async function upsertPointsBatch({
                 result
             }
         } = await axios.put(
-            `${getQdrantUrl()}/collections/${collection_name}/points`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points`,
             {
                 batch: {
                     ids,
@@ -876,7 +921,8 @@ async function setPointsPayload({
     ids = [],
     payload = null,
     filter = null,
-}: { collection_name?: string | null, ids?: any[], payload?: any, filter?: any }) {
+    qdrantUrl
+}: { collection_name?: string | null, ids?: any[], payload?: any, filter?: any, qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection name is required');
@@ -891,7 +937,7 @@ async function setPointsPayload({
                 result
             }
         } = await axios.post(
-            `${getQdrantUrl()}/collections/${collection_name}/points/payload`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/payload`,
             {
                 payload,
                 points: ids,
@@ -930,7 +976,8 @@ async function overwritePointsPayload({
     collection_name = null,
     payload = null,
     ids = [],
-}: { collection_name?: string | null, payload?: any, ids?: any[] }) {
+    qdrantUrl
+}: { collection_name?: string | null, payload?: any, ids?: any[], qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection name is required');
@@ -949,7 +996,7 @@ async function overwritePointsPayload({
                 result
             }
         } = await axios.put(
-            `${getQdrantUrl()}/collections/${collection_name}/points/payload`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/payload`,
             {
                 payload,
                 points: ids
@@ -1021,7 +1068,8 @@ async function indexPointsPayload({
     is_tenant = true,
     is_principal = true,
     field_schema = null,
-}: { collection_name?: string | null, field_name?: string | null, type?: string, on_disk?: boolean, is_tenant?: boolean, is_principal?: boolean, field_schema?: any }) {
+    qdrantUrl
+}: { collection_name?: string | null, field_name?: string | null, type?: string, on_disk?: boolean, is_tenant?: boolean, is_principal?: boolean, field_schema?: any, qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection name is required');
@@ -1049,7 +1097,7 @@ async function indexPointsPayload({
                 result
             }
         } = await axios.put(
-            `${getQdrantUrl()}/collections/${collection_name}/index`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/index`,
             {
                 field_name,
                 field_schema: schema
@@ -1101,7 +1149,8 @@ async function facetCountPointsPayload({
     collection_name = null,
     key = null,
     filter = null,
-}: { collection_name?: string | null, key?: string | null, filter?: any }) {
+    qdrantUrl
+}: { collection_name?: string | null, key?: string | null, filter?: any, qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection name is required');
@@ -1116,7 +1165,7 @@ async function facetCountPointsPayload({
                 result
             }
         } = await axios.post(
-            `${getQdrantUrl()}/collections/${collection_name}/facet`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/facet`,
             {
                 key,
                 ...(filter ? { filter } : {})
@@ -1234,6 +1283,7 @@ async function searchKnn({
     lookup_negative_vectors = [],
     lookup_external_collection_name = null,
     lookup_external_vector_name = null,
+    qdrantUrl
 }: {
     collection_name?: string | null,
     mode?: string,
@@ -1250,7 +1300,8 @@ async function searchKnn({
     lookup_positive_vectors?: any[],
     lookup_negative_vectors?: any[],
     lookup_external_collection_name?: string | null,
-    lookup_external_vector_name?: string | null
+    lookup_external_vector_name?: string | null,
+    qdrantUrl?: string
 }){
     try {
         if (!collection_name) {
@@ -1306,14 +1357,14 @@ async function searchKnn({
 
         // Handle grouping
         if (group_by) {
-            const endpoint = `${getQdrantUrl()}/collections/${collection_name}/points/query/groups`;
+            const endpoint = `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/query/groups`;
             requestBody.group_by = group_by;
             const response = await axios.post(endpoint, requestBody);
             return response.data.result;
         }
 
         // Regular search
-        const endpoint = `${getQdrantUrl()}/collections/${collection_name}/points/query`;
+        const endpoint = `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/query`;
         const {
             data: {
                 result: {
@@ -1375,7 +1426,8 @@ async function searchLookupGroups({
     limit = 2,
     group_size = 2,
     with_lookup = null,
-}: { vector?: any, group_by?: string | null, limit?: number, group_size?: number, with_lookup?: any }) {
+    qdrantUrl
+}: { vector?: any, group_by?: string | null, limit?: number, group_size?: number, with_lookup?: any, qdrantUrl?: string }) {
     try {
         if (!vector) {
             throw new Error('Query vector is required');
@@ -1405,7 +1457,7 @@ async function searchLookupGroups({
                 result
             }
         } = await axios.post(
-            `${getQdrantUrl()}/collections/chunks/points/query/groups`,
+            `${getQdrantUrl(qdrantUrl)}/collections/chunks/points/query/groups`,
             requestBody
         );
 
@@ -1486,7 +1538,8 @@ async function searchLookupGroups({
 async function searchKnnBatch({
     collection_name = null,
     searches = [],
-}: { collection_name?: string | null, searches?: any[] }) {
+    qdrantUrl
+}: { collection_name?: string | null, searches?: any[], qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection name is required');
@@ -1501,7 +1554,7 @@ async function searchKnnBatch({
                 result
             }
         } = await axios.post(
-            `${getQdrantUrl()}/collections/${collection_name}/points/query/batch?`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/query/batch?`,
             { searches },
             {
                 params: {
@@ -1545,6 +1598,13 @@ async function searchById({
     id = null,
     with_payload = false,
     with_vector = false,
+    qdrantUrl
+}: {
+    collection_name?: string | null,
+    id?: any,
+    with_payload?: boolean,
+    with_vector?: boolean,
+    qdrantUrl?: string
 }) {
     try {
         if (!collection_name) {
@@ -1562,7 +1622,7 @@ async function searchById({
                 }
             }
         } = await axios.post(
-            `${getQdrantUrl()}/collections/${collection_name}/points/query`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/query`,
             {
                 query: id,
                 with_payload,
@@ -1579,8 +1639,9 @@ async function searchById({
 
 async function clearPointsPayload({
     collection_name = null,
-    ids = []
-}: PointsParams) {
+    ids = [],
+    qdrantUrl
+}: PointsParams & { qdrantUrl?: string }) {
     try {
         if (!collection_name) {
             throw new Error('Collection name is required');
@@ -1595,7 +1656,7 @@ async function clearPointsPayload({
                 result
             }
         } = await axios.post(
-            `${getQdrantUrl()}/collections/${collection_name}/points/payload/clear`,
+            `${getQdrantUrl(qdrantUrl)}/collections/${collection_name}/points/payload/clear`,
             {
                 points:ids
             }
@@ -1610,8 +1671,9 @@ async function clearPointsPayload({
 
 
 async function updateVectors({
-    collection_name = null
-}){
+    collection_name = null,
+    qdrantUrl
+}: { collection_name?: string | null, qdrantUrl?: string }){
     // PUT /collections/{collection_name}/points/vectors
     // {
     //     "points": [
@@ -1632,8 +1694,9 @@ async function updateVectors({
 }
 
 async function deleteVectors({
-    collection_name = null
-}){
+    collection_name = null,
+    qdrantUrl
+}: { collection_name?: string | null, qdrantUrl?: string }){
     // POST /collections/{collection_name}/points/vectors/delete
     // {
     //     "points": [0, 3, 100],
